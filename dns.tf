@@ -1,8 +1,13 @@
+locals {
+    # CIC clusters use their own DNS servers; otherwise, the host's DNS is used.
+    primary_upstream = var.cluster_type == "cic" ? cidrhost(var.cluster_subnet_private, 5) : "/etc/resolv.conf"
+}
+
 resource "helm_release" "coredns" {
     namespace = "kube-system"
 
     name = "coredns"
-    chart = "${path.module}/../charts/coredns-1.16.3-custom.tgz"
+    chart = "${path.module}/charts/coredns-1.16.3-custom.tgz"
 
     values = [yamlencode({
         "nameOverride" = "kube-dns"
@@ -84,8 +89,12 @@ EOT
                 {
                     "name" = "forward"
 
-                    # CIC clusters require their own DNS servers for bootstrapping; otherwise, the host is used.
-                    "parameters" = var.cluster_type == "cic" ? ". ${cidrhost(var.cluster_subnet_private, 5)}" : ". /etc/resolv.conf"
+                    # fall back on the host's DNS if the primary upstream fails
+                    # (or for CIC site controllers, isn't bootstrapped yet)
+                    "parameters" = ". ${local.primary_upstream} /etc/resolv.conf"
+                    "configBlock" = <<EOT
+policy sequential
+EOT
                 },
                 {
                     "name" = "cache"
