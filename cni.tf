@@ -69,9 +69,9 @@ resource "helm_release" "cilium" {
         }
 
         # BREAKS NGINX INGRESS - DO NOT USE.
-        # "sockops" = {
-        #     "enabled" = true
-        # }
+        "sockops" = {
+            "enabled" = false
+        }
 
         "operator" = {
             "rollOutPods" = true
