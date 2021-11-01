@@ -55,17 +55,17 @@ EOT
                 {
                     # Makes the UI server DNS resolvable
                     "name" = "rewrite"
-                    "parameters" = "name ui.${var.cluster_dns} ingress-nginx-controller.kube-system.${var.cluster_dns}"
+                    "parameters" = "name ui.${var.cluster_dns} ingress-nginx-controller.infra-system.${var.cluster_dns}"
                 },
                 {
                     # Makes the IDP server DNS resolvable
                     "name" = "rewrite"
-                    "parameters" = "name idp.${var.cluster_dns} ingress-nginx-controller.kube-system.${var.cluster_dns}"
+                    "parameters" = "name idp.${var.cluster_dns} ingress-nginx-controller.infra-system.${var.cluster_dns}"
                 },
                 {
                     # Makes the Boundary Worker server DNS resolvable
                     "name" = "rewrite"
-                    "parameters" = "name boundary-worker.${var.cluster_dns} boundary-worker.core-system.${var.cluster_dns}"
+                    "parameters" = "name boundary-worker.${var.cluster_dns} boundary-worker.infra-system.${var.cluster_dns}"
                 },
                 {
                     # Required to query kubernetes API for data
