@@ -101,9 +101,6 @@ EOT
                     "parameters" = 30
                 },
                 {
-                    "name" = "loop"
-                },
-                {
                     "name" = "reload"
                 },
                 {
