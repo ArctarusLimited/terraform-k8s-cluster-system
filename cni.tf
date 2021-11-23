@@ -37,7 +37,7 @@ resource "helm_release" "cilium" {
 
         "extraArgs" = [
             # Handle higher load when pods are created rapidly
-            "--api-rate-limit endpoint-create=rate-limit:4/s,rate-burst=8"
+            "--api-rate-limit", "endpoint-create=rate-limit:4/s,rate-burst:8"
         ]
 
         "hubble" = {
