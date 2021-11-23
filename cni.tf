@@ -23,15 +23,6 @@ resource "helm_release" "cilium" {
     values = [yamlencode({
         "rollOutCiliumPods" = true
 
-        # Using MetalLB directly because of:
-        # https://github.com/cilium/cilium/issues/16967
-        # "bgp" = {
-        #     "enabled" = true
-        #     "announce" = {
-        #         "loadbalancerIP" = true
-        #     }
-        # }
-
         "containerRuntime" = {
             "integration" = "containerd"
         }
@@ -43,6 +34,11 @@ resource "helm_release" "cilium" {
             # see https://github.com/cilium/cilium/issues/13663
             "nodeEncryption" = false
         }
+
+        "extraArgs" = [
+            # Handle higher load when pods are created rapidly
+            "--api-rate-limit endpoint-create=rate-limit:4/s,rate-burst=8"
+        ]
 
         "hubble" = {
             "relay" = {
@@ -83,13 +79,3 @@ resource "helm_release" "cilium" {
 
     depends_on = [ kubernetes_secret.cilium_ipsec_keys ]
 }
-
-# module "multus" {
-#     source = "./../../../terraform/utils/multi_apply"
-#     manifest = "${path.module}/../../../manifests/multus-daemonset.yaml"
-# }
-
-# module "multus_plugins" {
-#     source = "./../../../terraform/utils/multi_apply"
-#     manifest = "${path.module}/../../../manifests/multus-plugins.yaml"
-# }
