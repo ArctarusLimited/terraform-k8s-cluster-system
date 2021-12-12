@@ -109,6 +109,4 @@ EOT
             ]
         }]
     })]
-
-    depends_on = [helm_release.metallb]
 }
