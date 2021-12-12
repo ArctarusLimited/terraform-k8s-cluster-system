@@ -61,10 +61,6 @@ resource "helm_release" "cilium" {
             "enabled" = true
         }
 
-        "localRedirectPolicy" = {
-            "enabled" = true
-        }
-
         # BREAKS NGINX INGRESS - DO NOT USE.
         "sockops" = {
             "enabled" = false
