@@ -39,14 +39,16 @@ resource "helm_release" "metallb" {
         # because we need urgent ipv6 support
         "controller" = {
             "image" = {
-                "repository" = "ghcr.io/arctaruslimited/metallb-controller"
                 "tag" = "0.9.6"
+                "pullPolicy" = "Always"
+                "repository" = "ghcr.io/arctaruslimited/metallb-controller"
             }
         }
         "speaker" = {
             "image" = {
-                "repository" = "ghcr.io/arctaruslimited/metallb-speaker"
                 "tag" = "0.9.6"
+                "pullPolicy" = "Always"
+                "repository" = "ghcr.io/arctaruslimited/metallb-speaker"
             }
         }
     })]
