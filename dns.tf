@@ -1,6 +1,6 @@
 locals {
     # CIC clusters use their own DNS servers; otherwise, the host's DNS is used.
-    primary_upstream = var.cluster_type == "cic" ? cidrhost(var.cluster_subnet_private, 5) : "/etc/resolv.conf"
+    primary_upstream = var.cluster_type == "cic" ? cidrhost(var.cluster_subnet_v4, 5) : "/etc/resolv.conf"
 }
 
 resource "helm_release" "coredns" {
@@ -19,7 +19,7 @@ resource "helm_release" "coredns" {
             "clusterIP" = "172.31.0.10"
 
             # only set for non-CIC, takes the 5th IP in the reserved range
-            "loadBalancerIP" = var.cluster_type == "cic" ? "" : cidrhost(var.cluster_subnet_private, 5)
+            "loadBalancerIP" = var.cluster_type == "cic" ? "" : cidrhost(var.cluster_subnet_v4, 5)
         }
 
         # CIC is forwarded via the site DNS instance; all others go through a load balancer

@@ -13,14 +13,14 @@ variable "cluster_type" {
     description = "Type of the cluster"
 }
 
-variable "cluster_subnet_public" {
+variable "cluster_subnet_v4" {
     type = string
-    default = null
-    description = "Public access subnet"
+    description = "Private access subnet"
 }
 
-variable "cluster_subnet_private" {
+variable "cluster_subnet_v6" {
     type = string
+    default = null
     description = "Private access subnet"
 }
 
