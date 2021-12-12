@@ -13,7 +13,7 @@ data "kustomization_build" "metallb" {
 
 resource "kustomization_resource" "default" {
     for_each = data.kustomization_build.metallb.ids
-    manifest = data.kustomization_build.metallb[each.value]
+    manifest = data.kustomization_build.metallb.manifests[each.value]
 }
 
 resource "kubernetes_config_map" "metallb" {
