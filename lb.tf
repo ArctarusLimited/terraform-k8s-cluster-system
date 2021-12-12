@@ -12,6 +12,7 @@ resource "helm_release" "metallb" {
     name = "metallb"
 
     chart = "metallb"
+    version = "0.11.0"
     repository = "https://metallb.github.io/metallb"
 
     values = [yamlencode({
@@ -33,6 +34,18 @@ resource "helm_release" "metallb" {
                     "avoid-buggy-ips" = true
                 }
             ])
+        }
+        # temporarily use main
+        # because we need urgent ipv6 support
+        "controller" = {
+            "image" = {
+                "tag" = "main"
+            }
+        }
+        "speaker" = {
+            "image" = {
+                "tag" = "main"
+            }
         }
     })]
 }
