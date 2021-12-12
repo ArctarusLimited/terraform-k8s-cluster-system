@@ -7,6 +7,12 @@ locals {
     }] : []
 }
 
+resource "kubernetes_namespace" "metallb_system" {
+    metadata {
+        name = "metallb-system"
+    }
+}
+
 data "kustomization_build" "metallb" {
     path = "${path.module}/manifests/metallb"
 }
@@ -14,12 +20,13 @@ data "kustomization_build" "metallb" {
 resource "kustomization_resource" "default" {
     for_each = data.kustomization_build.metallb.ids
     manifest = data.kustomization_build.metallb.manifests[each.value]
+    depends_on = [kubernetes_namespace.metallb_system]
 }
 
 resource "kubernetes_config_map" "metallb" {
     metadata {
-        name = "metallb"
-        namespace = "kube-system"
+        name = "config"
+        namespace = "metallb-system"
     }
 
     data = {
@@ -43,4 +50,6 @@ resource "kubernetes_config_map" "metallb" {
             "peers" = var.metallb_bgp_peers
         })
     }
+
+    depends_on = [kubernetes_namespace.metallb_system]
 }
