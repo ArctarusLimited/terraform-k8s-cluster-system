@@ -7,17 +7,23 @@ locals {
     }] : []
 }
 
-resource "helm_release" "metallb" {
-    namespace = "kube-system"
-    name = "metallb"
+data "kustomization_build" "metallb" {
+    path = "${path.module}/manifests/metallb"
+}
 
-    chart = "metallb"
-    version = "0.11.0"
-    repository = "https://metallb.github.io/metallb"
+resource "kustomization_resource" "default" {
+    for_each = data.kustomization_build.metallb
+    manifest = data.kustomization_build.metallb[each.value]
+}
 
-    values = [yamlencode({
-        "configInline" = {
-            "peers" = var.metallb_bgp_peers
+resource "kubernetes_config_map" "metallb" {
+    metadata {
+        name = "metallb"
+        namespace = "kube-system"
+    }
+
+    data = {
+        config = yamlencode({
             "address-pools" = concat(local.metallb_pools, [
                 {
                     # the first /27 is reserved for static addresses
@@ -34,18 +40,7 @@ resource "helm_release" "metallb" {
                     "avoid-buggy-ips" = true
                 }
             ])
-        }
-        # temporarily use main
-        # because we need urgent ipv6 support
-        "controller" = {
-            "image" = {
-                "tag" = "main"
-            }
-        }
-        "speaker" = {
-            "image" = {
-                "tag" = "main"
-            }
-        }
-    })]
+            "peers" = var.metallb_bgp_peers
+        })
+    }
 }
