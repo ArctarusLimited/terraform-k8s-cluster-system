@@ -1,12 +1,3 @@
-locals {
-    metallb_pools = var.cluster_subnet_v6 != null ? [{
-        "name" = "private-v6"
-        "protocol" = "bgp"
-        "addresses" = [var.cluster_subnet_v6]
-        "avoid-buggy-ips" = true
-    }] : []
-}
-
 resource "kubernetes_namespace" "metallb_system" {
     metadata {
         name = "metallb-system"
@@ -31,22 +22,24 @@ resource "kubernetes_config_map" "metallb" {
 
     data = {
         config = yamlencode({
-            "address-pools" = concat(local.metallb_pools, [
+            "address-pools" = [
                 {
-                    # the first /27 is reserved for static addresses
-                    "name" = "private-v4-static"
+                    "name" = "private-static"
                     "protocol" = "bgp"
                     "addresses" = ["${cidrhost(var.cluster_subnet_v4, 0)}-${cidrhost(var.cluster_subnet_v4, 31)}"]
                     "auto-assign" = false
                     "avoid-buggy-ips" = true
                 },
                 {
-                    "name" = "private-v4"
+                    "name" = "private"
                     "protocol" = "bgp"
-                    "addresses" = ["${cidrhost(var.cluster_subnet_v4, 32)}-${cidrhost(var.cluster_subnet_v4, 255)}"]
+                    "addresses" = concat(var.cluster_subnet_v6 != null ? [var.cluster_subnet_v6] : [], [
+                        # the first /27 of the v4 pool is reserved for static addresses
+                        "${cidrhost(var.cluster_subnet_v4, 32)}-${cidrhost(var.cluster_subnet_v4, 255)}"
+                    ])
                     "avoid-buggy-ips" = true
                 }
-            ])
+            ]
             "peers" = var.metallb_bgp_peers
         })
     }
