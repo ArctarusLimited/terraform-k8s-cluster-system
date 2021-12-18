@@ -32,7 +32,25 @@ resource "helm_release" "coredns" {
             "port" = 53
             "plugins" = [
                 {
+                    "name" = "cache"
+                    "parameters" = 30
+                },
+                {
                     "name" = "errors"
+                },
+                {
+                    "name" = "loadbalance"
+                },
+                {
+                    "name" = "log"
+                    "configBlock" = "class error"
+                },
+                {
+                    "name" = "reload"
+                },
+                {
+                    # Serves a /ready endpoint on :8181, required for readinessProbe
+                    "name" = "ready"
                 },
                 {
                     # Serves a /health endpoint on :8080, required for livenessProbe
@@ -40,8 +58,9 @@ resource "helm_release" "coredns" {
                     "configBlock" = "lameduck 5s"
                 },
                 {
-                    # Serves a /ready endpoint on :8181, required for readinessProbe
-                    "name" = "ready"
+                    # Serves a /metrics endpoint on :9153, required for serviceMonitor
+                    "name" = "prometheus"
+                    "parameters" = "0.0.0.0:9153"
                 },
                 {
                     # Makes the API server DNS resolvable
@@ -82,11 +101,6 @@ EOT
                     "parameters" = var.cluster_dns
                 },
                 {
-                    # Serves a /metrics endpoint on :9153, required for serviceMonitor
-                    "name" = "prometheus"
-                    "parameters" = "0.0.0.0:9153"
-                },
-                {
                     "name" = "forward"
 
                     # fall back on the host's DNS if the primary upstream fails
@@ -96,16 +110,6 @@ EOT
 policy sequential
 EOT
                 },
-                {
-                    "name" = "cache"
-                    "parameters" = 30
-                },
-                {
-                    "name" = "reload"
-                },
-                {
-                    "name" = "loadbalance"
-                }
             ]
         }]
     })]
