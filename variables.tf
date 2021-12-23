@@ -34,3 +34,8 @@ variable "metallb_bgp_peers" {
     type = any
     default = {}    
 }
+
+variable "metallb_extra_pools" {
+    type = any
+    default = []
+}

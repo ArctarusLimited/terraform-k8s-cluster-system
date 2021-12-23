@@ -22,7 +22,7 @@ resource "kubernetes_config_map" "metallb" {
 
     data = {
         config = yamlencode({
-            "address-pools" = [
+            "address-pools" = concat([
                 {
                     "name" = "private-static"
                     "protocol" = "bgp"
@@ -39,7 +39,7 @@ resource "kubernetes_config_map" "metallb" {
                     ])
                     "avoid-buggy-ips" = true
                 }
-            ]
+            ], var.metallb_extra_pools)
             "peers" = var.metallb_bgp_peers
         })
     }
